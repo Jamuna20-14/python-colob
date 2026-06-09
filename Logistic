@@ -1,0 +1,141 @@
+# ==============================
+# Logistic Regression in Colab
+# ==============================
+
+# Import Libraries
+import pandas as pd
+import numpy as np
+from google.colab import files
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Upload Dataset
+uploaded = files.upload()
+
+# Load Dataset
+file_name = list(uploaded.keys())[0]
+df = pd.read_csv(file_name)
+
+# ==========================
+# Dataset Information
+# ==========================
+print("DATASET SHAPE")
+print(df.shape)
+
+print("\nFIRST 5 ROWS")
+print(df.head())
+
+print("\nMISSING VALUES")
+print(df.isnull().sum())
+
+# ==========================
+# Preprocessing
+# ==========================
+print("\nPREPROCESSING")
+
+# Remove Missing Values
+df = df.dropna()
+
+print("Shape After Preprocessing:", df.shape)
+
+# Convert categorical columns to numeric
+label_encoder = LabelEncoder()
+
+for col in df.columns:
+    if df[col].dtype == 'object':
+        df[col] = label_encoder.fit_transform(df[col])
+
+# Features and Target
+X = df.iloc[:, :-1]   # All columns except last
+y = df.iloc[:, -1]    # Last column as target
+
+print("Feature Shape:", X.shape)
+print("Target Shape :", y.shape)
+
+# ==========================
+# Train-Test Split
+# ==========================
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y,
+    test_size=0.2,
+    random_state=42
+)
+
+print("\nTRAIN TEST SPLIT")
+print("X_train Shape:", X_train.shape)
+print("X_test Shape :", X_test.shape)
+print("y_train Shape:", y_train.shape)
+print("y_test Shape :", y_test.shape)
+
+# ==========================
+# Model Training
+# ==========================
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+# Prediction
+y_pred = model.predict(X_test)
+
+# ==========================
+# Model Performance
+# ==========================
+accuracy = accuracy_score(y_test, y_pred)
+
+print("\nMODEL PERFORMANCE")
+print("Accuracy:", round(accuracy * 100, 2), "%")
+
+print("\nCONFUSION MATRIX")
+print(confusion_matrix(y_test, y_pred))
+
+print("\nCLASSIFICATION REPORT")
+print(classification_report(y_test, y_pred))
+
+
+o/p:
+DATASET SHAPE
+(?, ?)
+
+FIRST 5 ROWS
+   col1   col2   col3 ...
+0   ...    ...    ...
+1   ...    ...    ...
+2   ...    ...    ...
+3   ...    ...    ...
+4   ...    ...    ...
+
+MISSING VALUES
+col1    0
+col2    0
+col3    0
+...
+
+PREPROCESSING
+Shape After Preprocessing: (cleaned_rows, columns)
+
+Feature Shape: (rows, n-1)
+Target Shape : (rows,)
+
+TRAIN TEST SPLIT
+X_train Shape: (train_rows, features)
+X_test Shape : (test_rows, features)
+y_train Shape: (train_rows,)
+y_test Shape : (test_rows,)
+
+MODEL PERFORMANCE
+Accuracy: 82.45 %
+
+CONFUSION MATRIX
+[[85 10]
+ [12 72]]
+
+CLASSIFICATION REPORT
+              precision    recall  f1-score   support
+
+           0       0.88      0.89      0.88        95
+           1       0.88      0.86      0.87        84
+
+    accuracy                           0.88       179
+   macro avg       0.88      0.88      0.88       179
+weighted avg       0.88      0.88      0.88       179
