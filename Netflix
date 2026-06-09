@@ -1,0 +1,119 @@
+# Import Libraries
+import pandas as pd
+import numpy as np
+from google.colab import files
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# Upload Dataset
+uploaded = files.upload()
+
+# Load Dataset
+df = pd.read_csv('Titanic-Dataset.csv')
+
+# ==========================
+# Dataset Information
+# ==========================
+print("DATASET SHAPE")
+print(df.shape)
+
+print("\nFIRST 5 ROWS")
+print(df.head())
+
+print("\nMISSING VALUES")
+print(df.isnull().sum())
+
+# ==========================
+# Preprocessing
+# ==========================
+print("\nPREPROCESSING")
+
+# Fill Missing Values
+df['Age'].fillna(df['Age'].median(), inplace=True)
+df['Embarked'].fillna(df['Embarked'].mode()[0], inplace=True)
+
+if 'Cabin' in df.columns:
+    df['Cabin'].fillna('Unknown', inplace=True)
+
+print("Missing Values After Preprocessing:")
+print(df.isnull().sum())
+
+# Encode Categorical Variables
+le = LabelEncoder()
+
+df['Sex'] = le.fit_transform(df['Sex'])
+
+if 'Embarked' in df.columns:
+    df['Embarked'] = le.fit_transform(df['Embarked'])
+
+# Features and Target
+X = df[['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare']]
+y = df['Survived']
+
+print("\nFeature Shape:", X.shape)
+print("Target Shape :", y.shape)
+
+# ==========================
+# Train-Test Split
+# ==========================
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+print("\nTRAIN TEST SPLIT")
+print("X_train Shape:", X_train.shape)
+print("X_test Shape :", X_test.shape)
+print("y_train Shape:", y_train.shape)
+print("y_test Shape :", y_test.shape)
+
+# ==========================
+# Model Training
+# ==========================
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+# Prediction
+y_pred = model.predict(X_test)
+
+# ==========================
+# Accuracy
+# ==========================
+accuracy = accuracy_score(y_test, y_pred)
+
+print("\nMODEL PERFORMANCE")
+print("Accuracy:", round(accuracy * 100, 2), "%")
+
+o/p:
+
+DATASET SHAPE
+(891, 12)
+
+FIRST 5 ROWS
+... (first 5 rows of Titanic dataset) ...
+
+MISSING VALUES
+Age         177
+Cabin       687
+Embarked      2
+...
+
+PREPROCESSING
+Missing Values After Preprocessing:
+Age         0
+Embarked    0
+Cabin       0
+
+Feature Shape: (891, 6)
+Target Shape : (891,)
+
+TRAIN TEST SPLIT
+X_train Shape: (712, 6)
+X_test Shape : (179, 6)
+y_train Shape: (712,)
+y_test Shape : (179,)
+
+MODEL PERFORMANCE
+Accuracy: ~75% to 82%
+
